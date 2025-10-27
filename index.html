@@ -336,18 +336,12 @@
         </div>
 
         <div class="controls-section">
+            <p style="text-align: center; font-weight: bold; font-size: 18px; margin-bottom: 20px;">نماذج رسائل الزيارات الميدانية (يتم تحديث التاريخ واليوم تلقائيًا مع إمكانية التعديل اليدوي)</p>
+
             <div class="control-group">
                 <div class="control-item">
                     <label for="researcherName">اسم الباحث:</label>
-                    <input type="text" id="researcherName" placeholder="مثال: أحمد محمد">
-                </div>
-
-                <div class="control-item">
-                    <label for="messageType">نوع الرسالة:</label>
-                    <select id="messageType">
-                        <option value="guarantee">رسالة الضمان</option>
-                        <option value="citizen">حساب المواطن</option>
-                    </select>
+                    <input type="text" id="researcherName" placeholder="مثال: أحمد محمد" oninput="updateMessagePreview()">
                 </div>
 
                 <div class="control-item">
@@ -363,6 +357,28 @@
                         </label>
                     </div>
                 </div>
+            </div>
+
+            <div class="date-controls-wrapper" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+                <div class="date-info" style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 15px;">
+                    <button class="date-control-btn prev-day" onclick="previousDay()" style="background: #e9ecef; color: #333; border: 1px solid #ccc; padding: 8px 15px; border-radius: 5px; cursor: pointer;">
+                        <i class="fas fa-chevron-right"></i> اليوم السابق
+                    </button>
+                    <span class="day-name" id="dayName" style="font-weight: bold; font-size: 18px;"></span>
+                    <span class="date-display" id="dateDisplay" style="font-weight: bold; font-size: 18px; border: 1px solid #ccc; padding: 5px 10px; border-radius: 5px;" contenteditable="true" onblur="handleDateEdit(this.textContent)"></span>
+                    <button class="date-control-btn next-day" onclick="nextDay()" style="background: #e9ecef; color: #333; border: 1px solid #ccc; padding: 8px 15px; border-radius: 5px; cursor: pointer;">
+                        اليوم التالي <i class="fas fa-chevron-left"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="buttons-container" style="display: flex; justify-content: center; gap: 10px; margin-bottom: 20px;">
+                <button class="message-btn active" id="messageBtn1" onclick="selectMessage(this, 'guarantee')" style="padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; background: #667eea; color: white;">
+                    رسالة الضمان
+                </button>
+                <button class="message-btn" id="messageBtn2" onclick="selectMessage(this, 'citizen')" style="padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; background: #f8f9fa; color: #333; border: 2px solid #667eea;">
+                    حساب المواطن
+                </button>
             </div>
 
             <div class="message-preview">
@@ -394,19 +410,105 @@
     <script>
         // رسائل مبدئية
         const messages = {
-            guarantee: "السلام عليكم ورحمة الله وبركاته\n\nنرسل لحضرتك هذه الرسالة بخصوص...\n\nمع أطيب التحيات",
-            citizen: "السلام عليكم ورحمة الله وبركاته\n\nنرسل لحضرتك هذه الرسالة بخصوص حساب المواطن...\n\nمع أطيب التحيات"
+            guarantee: "السلام عليكم ورحمة الله وبركاته ...\n\nعزيزيتي المستفيدة \n\nمعك (الباحث ــه الإجتماعية)  ##RESEARCHER_NAME##\n\nوزارة الموارد البشرية والتنمية الإجتماعيه...\n\n(الضمان الاجتماعي)\n\nلديكم موعد زياره يوم (##DAY_NAME##)\n\nبتاريخ  ##DATE_DISPLAY##\n\n آمل منكم ارسال موقع المنزل وصوره للمنزل من الخارج فقط...\n\n🔹ملاحظه مهمه جدا \n\nوتجنباً للتأخير على المستفيدين الآخرين يجب تجهيز الطلبات التاليه وتكون بحوزة المستفيد اثناء الزياره \n\n✓ الهويه الوطنيه او كرت العائله.\n✓ رخصة السير (الاستماره) للمستفيد او احد التابعين في حال امتلاك سيارة.\n✓ عقد الايجار  او صك الملك في حال كان البيت ملكصك الورثه.\n✓ العنوان الوطني موثق من سبل او توكلنا مهم جداً.\n✓ صك الطلاق صك الحضانة.\n✓ التقرير الطبي اذا كان هناك مرض اواعاقة لاسمح الله.\n✓ وجود جميع التابعين فالمنزل لمن لديه تابع ماعادا الطلاب.\n\nلايوجد وقت محدد لموعد الزيارة وسوف يتم الابلاغ قبل القدوم بنصف ساعه .\n\nشكراً لكم ....",
+            citizen: "السلام عليكم ورحمة الله وبركاته .\n\nعزيزي المستفيد   \n\nمعك ( الباحثـ.    ــه  الإجتماعي)  ##RESEARCHER_NAME##\n        \nوزارة الموارد البشرية والتنمية الإجتماعيه.\n(حساب المواطن)\n\nلديكم موعد زياره يوم (##DAY_NAME##)\n\nبتاريخ  ##DATE_DISPLAY##\n\n      \nآمل منكم ارسال موقع المنزل وصوره للمنزل من الخارج  فقط..\n\n🔸🔸🔸ملاحظه مهمه جدا وتجنبا للتأخير  على المستفيدين الآخرين يجب تجهيز الطلبات التاليه وتكون بحوزة المستفيد اثناء الزياره .\n\n1- الهويه الوطنيه .\n2- عقد الايجار.\n3- العنوان الوطني.\n4- فاتورة الكهرباء ."
         };
 
-        // تحديث معاينة الرسالة
-        document.getElementById('messageType').addEventListener('change', function() {
-            updateMessagePreview();
-        });
+        // متغير لتخزين التاريخ الحالي
+        let currentDate = new Date();
 
+        const dayNames = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+
+        // وظيفة تهيئة التاريخ
+        function initializeDate() {
+            currentDate = new Date(); // يبدأ بتاريخ اليوم
+            updateDateDisplay();
+        }
+
+        // وظيفة تحديث عرض التاريخ واليوم
+        function updateDateDisplay() {
+            const dayNameElement = document.getElementById('dayName');
+            const dateDisplayElement = document.getElementById('dateDisplay');
+
+            const day = dayNames[currentDate.getDay()];
+            // تنسيق التاريخ: DD-MM-YYYY
+            const dateStr = currentDate.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-');
+
+            dayNameElement.textContent = day;
+            dateDisplayElement.textContent = dateStr;
+
+            updateMessagePreview(); // تحديث المعاينة بالتاريخ الجديد
+        }
+
+        // وظيفة اليوم السابق
+        function previousDay() {
+            currentDate.setDate(currentDate.getDate() - 1);
+            updateDateDisplay();
+        }
+
+        // وظيفة اليوم التالي
+        function nextDay() {
+            currentDate.setDate(currentDate.getDate() + 1);
+            updateDateDisplay();
+        }
+
+        // وظيفة معالجة التعديل اليدوي للتاريخ
+        function handleDateEdit(newDateStr) {
+            // محاولة تحويل النص المدخل إلى تاريخ
+            const parts = newDateStr.split('-');
+            if (parts.length === 3) {
+                // التاريخ بتنسيق DD-MM-YYYY
+                const day = parseInt(parts[0], 10);
+                const month = parseInt(parts[1], 10) - 1; // الشهر يبدأ من 0
+                const year = parseInt(parts[2], 10);
+                
+                const newDate = new Date(year, month, day);
+                
+                // التحقق من صحة التاريخ
+                if (newDate instanceof Date && !isNaN(newDate)) {
+                    currentDate = newDate;
+                    updateDateDisplay();
+                    return;
+                }
+            }
+            // إذا كان التنسيق غير صحيح، أعد القيمة القديمة
+            updateDateDisplay();
+            alert('⚠️ تنسيق التاريخ غير صحيح. الرجاء استخدام التنسيق DD-MM-YYYY.');
+        }
+
+        // وظيفة اختيار نوع الرسالة
+        function selectMessage(button, type) {
+            document.querySelectorAll('.message-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.background = '#f8f9fa';
+                btn.style.color = '#333';
+                btn.style.border = '2px solid #667eea';
+            });
+            button.classList.add('active');
+            button.style.background = '#667eea';
+            button.style.color = 'white';
+            button.style.border = 'none';
+
+            updateMessagePreview();
+        }
+
+        // تحديث معاينة الرسالة
         function updateMessagePreview() {
-            const messageType = document.getElementById('messageType').value;
+            const activeBtn = document.querySelector('.message-btn.active');
+            const messageType = activeBtn ? activeBtn.getAttribute('onclick').match(/'(guarantee|citizen)'/)[1] : 'guarantee';
             const preview = document.getElementById('messagePreview');
-            preview.textContent = messages[messageType];
+            let messageText = messages[messageType];
+            
+            // استبدال المتغيرات في المعاينة
+            const researcherName = document.getElementById('researcherName').value.trim() || 'اسم الباحث';
+            const dayName = document.getElementById('dayName').textContent;
+            const dateDisplay = document.getElementById('dateDisplay').textContent;
+
+            messageText = messageText.replace(/##RESEARCHER_NAME##/g, researcherName);
+            messageText = messageText.replace(/##DAY_NAME##/g, dayName);
+            messageText = messageText.replace(/##DATE_DISPLAY##/g, dateDisplay);
+
+            preview.textContent = messageText;
         }
 
         // تهيئة الجدول
@@ -458,8 +560,13 @@
             const beneficiaryName = row.querySelector('.beneficiary-name').value.trim();
             const beneficiaryPhone = row.querySelector('.beneficiary-phone').value.trim();
             const researcherName = document.getElementById('researcherName').value.trim();
-            const messageType = document.getElementById('messageType').value;
+            
+            const activeBtn = document.querySelector('.message-btn.active');
+            const messageType = activeBtn ? activeBtn.getAttribute('onclick').match(/'(guarantee|citizen)'/)[1] : 'guarantee';
             const whatsappType = document.querySelector('input[name="whatsappType"]:checked').value;
+            const dayName = document.getElementById('dayName').textContent;
+            const dateDisplay = document.getElementById('dateDisplay').textContent;
+
 
             // التحقق من البيانات
             if (!researcherName) {
@@ -485,21 +592,19 @@
                 phone = '966' + phone.substring(1);
             }
 
-            // إنشاء نص الرسالة
-            let messageText = `السلام عليكم ورحمة الله وبركاته\n\nالأخ/الأخت: ${beneficiaryName}\n\n`;
-            messageText += messages[messageType];
-            messageText += `\n\nالباحث: ${researcherName}`;
+            // إنشاء نص الرسالة وتضمين المتغيرات
+            let messageText = messages[messageType];
+            
+            // استبدال المتغيرات في الرسالة
+            messageText = messageText.replace(/##RESEARCHER_NAME##/g, researcherName);
+            messageText = messageText.replace(/##DAY_NAME##/g, dayName);
+            messageText = messageText.replace(/##DATE_DISPLAY##/g, dateDisplay);
 
             // ترميز الرسالة
             const encodedMessage = encodeURIComponent(messageText);
 
             // إنشاء رابط واتساب
-            let whatsappUrl;
-            if (whatsappType === 'business') {
-                whatsappUrl = `https://wa.me/${phone}?text=${encodedMessage}`;
-            } else {
-                whatsappUrl = `https://wa.me/${phone}?text=${encodedMessage}`;
-            }
+            let whatsappUrl = `https://wa.me/${phone}?text=${encodedMessage}`;
 
             // فتح واتساب في نافذة جديدة
             window.open(whatsappUrl, '_blank', 'width=500,height=600');
@@ -510,7 +615,7 @@
             button.disabled = true;
 
             // إظهار رسالة نجاح
-            showSuccessMessage(`تم إرسال الرسالة إلى ${beneficiaryName}`);
+            showSuccessMessage(`تم تجهيز الرسالة لـ ${beneficiaryName}`);
         }
 
         // إظهار رسالة نجاح
@@ -527,6 +632,7 @@
 
         // تهيئة الصفحة
         document.addEventListener('DOMContentLoaded', function() {
+            initializeDate();
             initializeTable();
             updateMessagePreview();
         });
